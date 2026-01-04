@@ -1,0 +1,7 @@
+Short: Issue: add()/sub() mein unchecked arithmetic (overflow/underflow) ho sakta hai.
+
+Long: Contract old pragma (0.7) use karta hai jahan built-in checks nahi hain. Large numbers se overflow/underflow ho sakta hai jo logic ko tod dega.
+
+Severity: Medium
+
+Recommendation: Fix: pragma upgrade karo ^0.8.0 ya SafeMath use karo; input validation add karo.

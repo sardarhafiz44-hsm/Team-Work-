@@ -1,0 +1,84 @@
+{
+  "total_vulns": 9,
+  "by_type": {
+    "reentrancy": 1,
+    "tx_origin": 7,
+    "delegatecall": 1
+  },
+  "vulns": [
+    {
+      "id": "reentrancy",
+      "name": "Reentrancy (external call before state update)",
+      "line": 69,
+      "snippet": "payable(msg.sender).transfer(amount);",
+      "description": "External call (call/send/transfer) performed before state update — allows reentrancy.",
+      "recommendation": "Update state before external calls; use ReentrancyGuard or nonReentrant modifier."
+    },
+    {
+      "id": "tx_origin",
+      "name": "Use of tx.origin for authorization",
+      "line": 6,
+      "snippet": "// 2) Using `tx.origin` in access control (`onlyOwner`) rather than `msg.sender`.",
+      "description": "Using tx.origin for auth is insecure; use msg.sender and proper ownership checks.",
+      "recommendation": "Replace tx.origin with msg.sender and implement proper access control."
+    },
+    {
+      "id": "tx_origin",
+      "name": "Use of tx.origin for authorization",
+      "line": 10,
+      "snippet": "// 5) Mixed checks: `onlyAdmin` uses `msg.sender` while `onlyOwner` uses `tx.origin` —",
+      "description": "Using tx.origin for auth is insecure; use msg.sender and proper ownership checks.",
+      "recommendation": "Replace tx.origin with msg.sender and implement proper access control."
+    },
+    {
+      "id": "tx_origin",
+      "name": "Use of tx.origin for authorization",
+      "line": 16,
+      "snippet": "// - Deploy a malicious contract and trick the current owner to call it so that tx.origin-based checks behave unexpectedly.",
+      "description": "Using tx.origin for auth is insecure; use msg.sender and proper ownership checks.",
+      "recommendation": "Replace tx.origin with msg.sender and implement proper access control."
+    },
+    {
+      "id": "tx_origin",
+      "name": "Use of tx.origin for authorization",
+      "line": 21,
+      "snippet": "// - Always use `msg.sender` for access control, not `tx.origin`.",
+      "description": "Using tx.origin for auth is insecure; use msg.sender and proper ownership checks.",
+      "recommendation": "Replace tx.origin with msg.sender and implement proper access control."
+    },
+    {
+      "id": "tx_origin",
+      "name": "Use of tx.origin for authorization",
+      "line": 45,
+      "snippet": "// 2) Dangerous: uses tx.origin instead of msg.sender for owner checks",
+      "description": "Using tx.origin for auth is insecure; use msg.sender and proper ownership checks.",
+      "recommendation": "Replace tx.origin with msg.sender and implement proper access control."
+    },
+    {
+      "id": "tx_origin",
+      "name": "Use of tx.origin for authorization",
+      "line": 47,
+      "snippet": "require(tx.origin == owner, \"Not owner (uses tx.origin)\");",
+      "description": "Using tx.origin for auth is insecure; use msg.sender and proper ownership checks.",
+      "recommendation": "Replace tx.origin with msg.sender and implement proper access control."
+    },
+    {
+      "id": "tx_origin",
+      "name": "Use of tx.origin for authorization",
+      "line": 56,
+      "snippet": "// removeAdmin is protected by onlyOwner — but onlyOwner uses tx.origin (vulnerable pattern)",
+      "description": "Using tx.origin for auth is insecure; use msg.sender and proper ownership checks.",
+      "recommendation": "Replace tx.origin with msg.sender and implement proper access control."
+    },
+    {
+      "id": "delegatecall",
+      "name": "delegatecall / callcode misuse",
+      "line": 75,
+      "snippet": "(bool success, bytes memory ret) = newImpl.delegatecall(data);",
+      "description": "delegatecall executes code in context of caller storage — dangerous if untrusted address used.",
+      "recommendation": "Avoid delegatecall with untrusted addresses; validate or restrict targets."
+    }
+  ],
+  "pragma": "^0.8.0",
+  "inferred_pragma_major": 0
+}

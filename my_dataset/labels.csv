@@ -1,0 +1,31 @@
+file,vulnerable,type,severity,affected_fn,pattern,short_explain,fix
+contracts/clean/MyProj_Clean_1.sol,no,none,none,,,No issues detected,No fix required
+contracts/clean/MyProj_Clean_2.sol,no,none,none,,,No issues detected,No fix required
+contracts/clean/MyProj_Clean_3.sol,no,none,none,,,No issues detected,No fix required
+contracts/clean/MyProj_Clean_4.sol,no,none,none,,,No issues detected,No fix required
+contracts/clean/MyProj_Clean_5.sol,no,none,none,,,No issues detected,No fix required
+contracts/clean/MyProj_Clean_6.sol,no,none,none,,,No issues detected,No fix required
+contracts/clean/MyProj_Clean_7.sol,no,none,none,,,No issues detected,No fix required
+contracts/clean/MyProj_Clean_8.sol,no,none,none,,,No issues detected,No fix required
+contracts/clean/MyProj_Clean_9.sol,no,none,none,,,No issues detected,No fix required
+contracts/clean/MyProj_Clean_10.sol,no,none,none,,,No issues detected,No fix required
+contracts/reentrancy/MyProj_ReentrancyVuln_1.sol,yes,reentrancy,high,withdraw(),external call before state update,Issue: withdraw() mein external call pehle state update se pehle ho rahi hai — reentrancy possible.,"Fix: balance update pehle karo, phir external call; use ReentrancyGuard ya nonReentrant modifier."
+contracts/reentrancy/MyProj_ReentrancyVuln_2.sol,yes,reentrancy,high,withdraw(),external call before state update,Issue: withdraw() mein external call pehle state update se pehle ho rahi hai — reentrancy possible.,"Fix: balance update pehle karo, phir external call; use ReentrancyGuard ya nonReentrant modifier."
+contracts/reentrancy/MyProj_ReentrancyVuln_3.sol,yes,reentrancy,high,withdraw(),external call before state update,Issue: withdraw() mein external call pehle state update se pehle ho rahi hai — reentrancy possible.,"Fix: balance update pehle karo, phir external call; use ReentrancyGuard ya nonReentrant modifier."
+contracts/reentrancy/MyProj_ReentrancyVuln_4.sol,yes,reentrancy,high,withdraw(),external call before state update,Issue: withdraw() mein external call pehle state update se pehle ho rahi hai — reentrancy possible.,"Fix: balance update pehle karo, phir external call; use ReentrancyGuard ya nonReentrant modifier."
+contracts/reentrancy/MyProj_ReentrancyVuln_5.sol,yes,reentrancy,high,withdraw(),external call before state update,Issue: withdraw() mein external call pehle state update se pehle ho rahi hai — reentrancy possible.,"Fix: balance update pehle karo, phir external call; use ReentrancyGuard ya nonReentrant modifier."
+contracts/reentrancy/MyProj_ReentrancyVuln_6.sol,yes,reentrancy,high,withdraw(),external call before state update,Issue: withdraw() mein external call pehle state update se pehle ho rahi hai — reentrancy possible.,"Fix: balance update pehle karo, phir external call; use ReentrancyGuard ya nonReentrant modifier."
+contracts/reentrancy/MyProj_ReentrancyVuln_7.sol,yes,reentrancy,high,withdraw(),external call before state update,Issue: withdraw() mein external call pehle state update se pehle ho rahi hai — reentrancy possible.,"Fix: balance update pehle karo, phir external call; use ReentrancyGuard ya nonReentrant modifier."
+contracts/access_control/MyProj_AccessVuln_1.sol,yes,access_control,high,emergencyWithdraw(),no owner check,Issue: emergencyWithdraw() public hai — access control missing.,Fix: onlyOwner modifier add karo; sirf owner ko permission do.
+contracts/access_control/MyProj_AccessVuln_2.sol,yes,access_control,high,emergencyWithdraw(),no owner check,Issue: emergencyWithdraw() public hai — access control missing.,Fix: onlyOwner modifier add karo; sirf owner ko permission do.
+contracts/access_control/MyProj_AccessVuln_3.sol,yes,access_control,high,emergencyWithdraw(),no owner check,Issue: emergencyWithdraw() public hai — access control missing.,Fix: onlyOwner modifier add karo; sirf owner ko permission do.
+contracts/access_control/MyProj_AccessVuln_4.sol,yes,access_control,high,emergencyWithdraw(),no owner check,Issue: emergencyWithdraw() public hai — access control missing.,Fix: onlyOwner modifier add karo; sirf owner ko permission do.
+contracts/access_control/MyProj_AccessVuln_5.sol,yes,access_control,high,emergencyWithdraw(),no owner check,Issue: emergencyWithdraw() public hai — access control missing.,Fix: onlyOwner modifier add karo; sirf owner ko permission do.
+contracts/access_control/MyProj_AccessVuln_6.sol,yes,access_control,high,emergencyWithdraw(),no owner check,Issue: emergencyWithdraw() public hai — access control missing.,Fix: onlyOwner modifier add karo; sirf owner ko permission do.
+contracts/access_control/MyProj_AccessVuln_7.sol,yes,access_control,high,emergencyWithdraw(),no owner check,Issue: emergencyWithdraw() public hai — access control missing.,Fix: onlyOwner modifier add karo; sirf owner ko permission do.
+contracts/arithmetic/MyProj_ArithmeticVuln_1.sol,yes,arithmetic,medium,add()/sub(),unchecked arithmetic,Issue: add()/sub() mein unchecked arithmetic (overflow/underflow) ho sakta hai.,Fix: pragma upgrade karo ^0.8.0 ya SafeMath use karo; input validation add karo.
+contracts/arithmetic/MyProj_ArithmeticVuln_2.sol,yes,arithmetic,medium,add()/sub(),unchecked arithmetic,Issue: add()/sub() mein unchecked arithmetic (overflow/underflow) ho sakta hai.,Fix: pragma upgrade karo ^0.8.0 ya SafeMath use karo; input validation add karo.
+contracts/arithmetic/MyProj_ArithmeticVuln_3.sol,yes,arithmetic,medium,add()/sub(),unchecked arithmetic,Issue: add()/sub() mein unchecked arithmetic (overflow/underflow) ho sakta hai.,Fix: pragma upgrade karo ^0.8.0 ya SafeMath use karo; input validation add karo.
+contracts/arithmetic/MyProj_ArithmeticVuln_4.sol,yes,arithmetic,medium,add()/sub(),unchecked arithmetic,Issue: add()/sub() mein unchecked arithmetic (overflow/underflow) ho sakta hai.,Fix: pragma upgrade karo ^0.8.0 ya SafeMath use karo; input validation add karo.
+contracts/arithmetic/MyProj_ArithmeticVuln_5.sol,yes,arithmetic,medium,add()/sub(),unchecked arithmetic,Issue: add()/sub() mein unchecked arithmetic (overflow/underflow) ho sakta hai.,Fix: pragma upgrade karo ^0.8.0 ya SafeMath use karo; input validation add karo.
+contracts/arithmetic/MyProj_ArithmeticVuln_6.sol,yes,arithmetic,medium,add()/sub(),unchecked arithmetic,Issue: add()/sub() mein unchecked arithmetic (overflow/underflow) ho sakta hai.,Fix: pragma upgrade karo ^0.8.0 ya SafeMath use karo; input validation add karo.
