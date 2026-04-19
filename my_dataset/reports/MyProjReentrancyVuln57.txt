@@ -1,7 +1,0 @@
-Short: Issue: withdraw() mein external call pehle state update se pehle ho rahi hai — reentrancy possible.
-
-Long: Is contract ke withdraw function mein pehle external call (msg.sender.call) ho rahi hai aur baad mein balance update ho raha hai. Agar attacker malicious contract se repeatedly call karega to funds drain ho sakti hain.
-
-Severity: High
-
-Recommendation: Fix: balance update pehle karo, phir external call; use ReentrancyGuard ya nonReentrant modifier.

@@ -1,7 +1,0 @@
-Short: Issue: emergencyWithdraw() public hai — access control missing.
-
-Long: Is contract mein emergencyWithdraw() pe koi owner check nahi hai; koi bhi user contract balance nikal sakta hai. Yeh authorization bug hai.
-
-Severity: High
-
-Recommendation: Fix: onlyOwner modifier add karo; sirf owner ko permission do.

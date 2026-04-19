@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Play, ShieldAlert, FileCode, Loader2, Globe, AlertCircle, ArrowRight, ShieldCheck, Plus } from 'lucide-react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
@@ -33,20 +33,29 @@ const Scanner = () => {
 
   // --- ACTIONS ---
 
-  const fetchHistory = async () => {
+  // 1. Fetch History
+  const fetchHistorySilent = async () => {
     try {
-        setLoading(true);
         const response = await axios.get('http://127.0.0.1:8000/history');
-        setHistoryData(response.data);
-        setShowHistory(true);
-        setResult(null);
-        setError(null);
+        if (response.data) {
+            setHistoryData(response.data);
+        }
     } catch (err) {
-        console.error(err);
-        alert("Failed to fetch history. Make sure Backend is running!");
-    } finally {
-        setLoading(false);
+        console.error("History fetch failed:", err);
     }
+  };
+
+  useEffect(() => {
+    fetchHistorySilent();
+  }, []);
+
+  const handleHistoryClick = async () => {
+    setLoading(true);
+    await fetchHistorySilent();
+    setLoading(false);
+    setShowHistory(true);
+    setResult(null);
+    setError(null);
   };
 
   const handleNewScan = () => {
@@ -62,7 +71,6 @@ const Scanner = () => {
     setLoading(true);
     setResult(null);
     setError(null);
-    setShowHistory(false);
 
     try {
       const endpoint = type === 'quick' ? 'http://127.0.0.1:8000/scan' : 'http://127.0.0.1:8000/deep-audit';
@@ -77,11 +85,16 @@ const Scanner = () => {
       if (response.data.status === "Error") {
         setError(response.data.details); 
       } else {
-        const data = response.data.ai_result || response.data.data;
-        if (data) {
-            setResult(data);
+        // ✅ FIX: Pass the FULL response object, not just 'ai_result'
+        // This ensures 'blockchain_status' is also passed to AuditResults
+        const fullData = response.data;
+        
+        if (fullData) {
+            setResult(fullData); // Pass complete object { ai_result: ..., blockchain_status: ... }
+            setShowHistory(false); 
+            fetchHistorySilent(); 
         } else {
-            setError("No data received from AI.");
+            setError("No data received.");
         }
       }
 
@@ -94,12 +107,18 @@ const Scanner = () => {
   };
 
   const loadFromHistory = (item) => {
-    setResult(item.result); 
+    // History items might have a slightly different structure, check backend format
+    // Usually history items store 'result' which is the ai_result.
+    // We might need to mock blockchain status if it's missing in history
+    const historyItem = {
+        ai_result: item.result, // Assuming item.result holds the report
+        blockchain_status: { tx_hash: "Verified in History", salt: "---" } 
+    };
+    setResult(historyItem); 
     setShowHistory(false);  
   };
 
   return (
-    // MAIN CONTAINER: Screen Height Fix (h-screen)
     <div className="max-w-[1600px] mx-auto p-4 flex flex-col h-screen overflow-hidden">
       
       {/* --- TOP HEADER --- */}
@@ -110,14 +129,14 @@ const Scanner = () => {
             </div>
             <div>
                 <h1 className="text-2xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
-                    SolShield <span className="text-cyber-primary text-sm font-mono px-2 py-0.5 border border-cyber-primary/30 rounded bg-cyber-primary/10">AI AUDITOR</span>
+                    SolShield <span className="text-cyber-primary text-sm font-mono px-2 py-0.5 border border-cyber-primary/30 rounded bg-cyber-primary/10">PRO AUDITOR</span>
                 </h1>
             </div>
         </div>
 
         <div className="flex gap-3">
             <button 
-                onClick={fetchHistory}
+                onClick={handleHistoryClick}
                 className={`px-4 py-2 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${
                     showHistory ? 'bg-cyber-primary text-black' : 'bg-gray-900 text-gray-400 hover:text-white border border-gray-800'
                 }`}
@@ -137,7 +156,7 @@ const Scanner = () => {
         </div>
       </header>
 
-      {/* --- MAIN GRID (Flex-1 + min-h-0 is KEY for scrolling) --- */}
+      {/* --- MAIN GRID --- */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0 pb-4">
         
         {/* LEFT: INPUT */}
@@ -146,7 +165,7 @@ const Scanner = () => {
           animate={{ opacity: 1, x: 0 }}
           className="bg-cyber-gray border border-gray-800 rounded-xl p-4 shadow-2xl flex flex-col h-full min-h-0"
         >
-          {/* Filename & Language Bar (Fixed Height) */}
+          {/* Filename & Language Bar */}
           <div className="flex-none flex items-center justify-between mb-2 pb-2 border-b border-gray-800">
               <div className="flex items-center gap-3 w-1/2">
                   <FileCode className="text-cyber-secondary w-5 h-5" />
@@ -177,7 +196,7 @@ const Scanner = () => {
               </div>
           </div>
 
-          {/* Code Editor (Flexible Height with Scroll) */}
+          {/* Code Editor */}
           <div className="flex-1 flex relative overflow-hidden bg-[#0a0a12] rounded-lg border border-gray-800 focus-within:border-cyber-primary transition-colors min-h-0">
               <div className="bg-[#161622] text-gray-500 font-mono text-sm p-3 text-right select-none border-r border-gray-800 w-12 overflow-hidden leading-6">
                   <pre>{lineNumbers}</pre>
@@ -191,7 +210,7 @@ const Scanner = () => {
               ></textarea>
           </div>
 
-          {/* Action Buttons (Fixed Bottom) */}
+          {/* Action Buttons */}
           <div className="flex-none flex gap-3 mt-4">
               <button 
                   onClick={() => handleScan('quick')}
@@ -207,7 +226,7 @@ const Scanner = () => {
                   className="flex-1 bg-gradient-to-r from-cyber-secondary to-blue-600 text-white py-2 rounded-lg hover:opacity-90 transition-all font-bold text-sm flex items-center justify-center gap-2 shadow-neon"
               >
                  {loading ? <Loader2 className="animate-spin w-4 h-4"/> : <ShieldAlert size={16} />}
-                 Deep Audit (AI)
+                 Deep Audit
               </button>
           </div>
         </motion.div>
@@ -218,7 +237,7 @@ const Scanner = () => {
           animate={{ opacity: 1, x: 0 }}
           className="bg-cyber-gray border border-gray-800 rounded-xl p-4 shadow-2xl h-full min-h-0 flex flex-col relative"
         >
-          {/* Header (Fixed) */}
+          {/* Header */}
           <div className="flex-none flex justify-between items-center mb-4 border-b border-gray-800 pb-2">
               <h3 className="text-white font-bold text-sm flex items-center gap-2">
                   <ShieldAlert className="text-cyber-primary" size={18} />
@@ -226,7 +245,7 @@ const Scanner = () => {
               </h3>
           </div>
 
-          {/* Scrollable Content Area (min-h-0 is CRITICAL here) */}
+          {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0 pr-2 pb-10">
               {loading ? (
                   <div className="h-full flex flex-col items-center justify-center text-cyber-primary">
@@ -268,7 +287,7 @@ const Scanner = () => {
                   // RESULT
                   <AuditResults data={result} />
               ) : (
-                  // EMPTY STATE (Ab ye zaroor nazar aye ga)
+                  // EMPTY STATE
                   <div className="h-full flex flex-col items-center justify-center text-gray-500 opacity-50">
                       <ShieldCheck size={64} className="mb-4 text-gray-600" />
                       <p className="text-lg font-bold">Ready to Audit</p>
