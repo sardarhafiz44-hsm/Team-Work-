@@ -1,0 +1,72 @@
+# ================================
+# SolShield Pro — Git Ignore Rules
+# ================================
+
+# === ENVIRONMENT & SECRETS ===
+.env
+*.env.local
+.env.*.local
+
+# === PYTHON ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+*.whl
+.venv/
+venv/
+env/
+
+# === NODE / FRONTEND ===
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+package-lock.json
+
+# === DATABASE ===
+*.db
+*.sqlite
+*.sqlite3
+Database/
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+desktop.ini
+Thumbs.db
+Downloads.code-workspace
+
+# === OS ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === BINARIES (DO NOT COMMIT) ===
+*.exe
+*.dll
+*.so
+*.dylib
+Git-*.exe
+
+# === TESTING / COVERAGE ===
+.coverage
+htmlcov/
+.pytest_cache/
+.nox/
+
+# === MISC ===
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

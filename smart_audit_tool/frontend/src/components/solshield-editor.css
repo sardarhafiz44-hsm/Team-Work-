@@ -1,0 +1,19 @@
+/* SolShield Pro — Monaco editor decorations
+   Imported by Scanner.jsx. Drives line-by-line vulnerability highlighting. */
+
+/* Whole-line tint */
+.ssx-line.ssx-critical { background: rgba(255, 59, 92, 0.10); }
+.ssx-line.ssx-high     { background: rgba(255, 138, 61, 0.10); }
+.ssx-line.ssx-medium   { background: rgba(245, 196, 81, 0.10); }
+.ssx-line.ssx-low      { background: rgba(0, 212, 255, 0.10); }
+
+/* Gutter glyph: a coloured bar marking the affected line */
+.ssx-glyph {
+  width: 4px !important;
+  margin-left: 3px;
+  border-radius: 2px;
+}
+.ssx-glyph.ssx-critical { background: #FF3B5C; box-shadow: 0 0 6px rgba(255, 59, 92, 0.6); }
+.ssx-glyph.ssx-high     { background: #FF8A3D; }
+.ssx-glyph.ssx-medium   { background: #F5C451; }
+.ssx-glyph.ssx-low      { background: #00D4FF; }
