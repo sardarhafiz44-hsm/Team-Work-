@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Rocket, Gas, DollarSign, Clock, CheckCircle, AlertTriangle, Network } from 'lucide-react';
+import { Rocket, Zap, DollarSign, Clock, CheckCircle, AlertTriangle, Network } from 'lucide-react';
 
 const DeploymentPanel = ({ deploymentEstimate, deploymentSimulation, deploymentVisualization, score }) => {
   if (!deploymentEstimate || !deploymentSimulation) {
@@ -36,11 +36,11 @@ const DeploymentPanel = ({ deploymentEstimate, deploymentSimulation, deploymentV
         </div>
       </div>
 
-      {/* Gas Estimation */}
+      {/* Zap Estimation */}
       <div className="mb-6">
         <p className="text-xs text-white/40 uppercase tracking-wider mb-3 flex items-center gap-2">
-          <Gas size={14} />
-          Gas Estimation
+          <Zap size={14} />
+          Zap Estimation
         </p>
         <div className="grid grid-cols-2 gap-3">
           {Object.entries(deploymentEstimate.deployment_costs).map(([speed, data]) => (
@@ -62,7 +62,7 @@ const DeploymentPanel = ({ deploymentEstimate, deploymentSimulation, deploymentV
           <span className="text-2xl font-bold text-white">${deploymentSimulation.deployment_cost_usd}</span>
           <span className="text-sm text-white/60">({deploymentSimulation.deployment_cost_eth} ETH)</span>
         </div>
-        <p className="text-xs text-white/40 mt-1">Gas Used: {deploymentSimulation.gas_used.toLocaleString()} units</p>
+        <p className="text-xs text-white/40 mt-1">Zap Used: {deploymentSimulation.Zap_used.toLocaleString()} units</p>
       </div>
 
       {/* Transaction Details */}

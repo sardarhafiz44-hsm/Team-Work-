@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import useStore from '../store/useStore';
+import axios from 'axios';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, CartesianGrid, RadialBarChart, RadialBar
@@ -193,9 +195,21 @@ const ExecutiveDashboard = () => {
     { name: 'Response Time', value: 87.5, fill: COLORS.high },
   ];
 
+    const { auditHistoryList, syncAuditHistory } = useStore();
+
   useEffect(() => {
-    setTimeout(() => setLoading(false), 1500);
-  }, []);
+    const fetchHistory = async () => {
+      try {
+        const { data } = await axios.get('http://127.0.0.1:8000/history');
+        syncAuditHistory(data);
+      } catch (err) {
+        console.error('History fetch failed:', err);
+      } finally {
+        setTimeout(() => setLoading(false), 1000);
+      }
+    };
+    fetchHistory();
+  }, [syncAuditHistory]);
 
   const tooltipStyle = {
     backgroundColor: '#090D16',

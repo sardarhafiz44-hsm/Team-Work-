@@ -1,24 +1,13 @@
 # SolShield Pro — Backend Dependencies
-# Install: pip install -r requirements.txt
-
-# === CORE WEB FRAMEWORK ===
-fastapi==0.109.0
-uvicorn[standard]==0.27.0
-python-dotenv==1.0.0
-pydantic==2.5.3
-
-# === DATABASE (SQLAlchemy ORM) ===
-sqlalchemy==2.0.25
-aiosqlite==0.19.0
-
-# === AI ENGINE (Google Gemini) ===
-google-generativeai==0.3.2
-typing-extensions==4.9.0
-
-# === BLOCKCHAIN (Web3 + Solidity Compiler) ===
-web3==6.14.0
-py-solc-x==2.0.3
-
-# === UTILITIES ===
-httpx==0.26.0
-python-multipart==0.0.6
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+python-dotenv>=1.0.0
+pydantic>=2.10.0
+sqlalchemy>=2.0.35
+aiosqlite>=0.20.0
+groq>=0.5.0
+typing-extensions>=4.12.0
+web3>=7.0.0
+py-solc-x>=2.0.3
+httpx>=0.27.0
+python-multipart>=0.0.12

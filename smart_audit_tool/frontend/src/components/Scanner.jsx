@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
+import useStore from '../store/useStore';
 import { Play, ShieldCheck, FileCode2, Loader2, RotateCcw, Wand2, Crosshair, ChevronDown, Lock, Hash, Activity, Terminal, TrendingDown, AlertTriangle, Rocket, Zap, CheckCircle } from 'lucide-react';
 import axios from 'axios';
 
@@ -15,6 +16,7 @@ const Scanner = () => {
   const [filename, setFilename] = useState('MyContract.sol');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const commitScanSuccess = useStore((s) => s.commitScanSuccess);
   const [error, setError] = useState(null);
 
   const handleScan = async () => {
@@ -36,6 +38,7 @@ const Scanner = () => {
 
       if (data.status === 'Success') {
         setResult(data);
+        commitScanSuccess(data);
       } else {
         setError('Audit failed. Please try again.');
       }
@@ -52,7 +55,7 @@ const Scanner = () => {
   const colorCode = result?.ai_result?.risk_score?.ui_metadata?.color_code ?? "#00ff88";
 
   return (
-    <div className="min-h-screen bg-[#050B14] text-white p-6">
+    <div className="min-h-full bg-[#050B14] text-white p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">

@@ -13,7 +13,6 @@ import audit_engine_fallback
 import scoring_engine
 import Auto_healer
 import history_database
-import attack_simulator
 import gas_analyzer
 import compliance_checker
 import deployment_service
@@ -70,10 +69,6 @@ async def perform_audit(request: ContractRequest):
         # Layer 2: Scoring
         score_payload = scoring_engine.calculate_risk_score(vulns)
         
-        # Layer 3: Attack Simulation (Agent Beta)
-        attack_sim = await attack_simulator.simulate_attack(vulns, groq_client, request.code)
-        attack_viz = attack_simulator.get_attack_visualization(attack_sim)
-        
         # Layer 4: Gas Optimization Analysis
         gas_analysis = gas_analyzer.analyze_gas_optimization(request.code)
         gas_viz = gas_analyzer.get_gas_visualization(gas_analysis)
@@ -106,8 +101,6 @@ async def perform_audit(request: ContractRequest):
             "ai_result": {
                 "risk_score": score_payload,
                 "vulnerabilities": vulns,
-                "attack_simulation": attack_sim,
-                "attack_visualization": attack_viz,
                 "ai_attack_simulation": ai_attack_data,
                 "ai_attacks_display": ai_attacks_display,
                 "gas_analysis": gas_analysis,
