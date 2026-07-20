@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import SplashScreen from './pages/SplashScreen';
 import Sidebar from './components/Sidebar';
 import Scanner from './components/Scanner';
 import ExecutiveDashboard from './components/ExecutiveDashboard';
@@ -9,7 +10,16 @@ import AnalyticalCharts from './components/AnalyticalCharts';
 import useStore from './store/useStore';
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
   const activeTab = useStore((state) => state.activeTab);
+
+  const handleEnter = () => {
+    setShowSplash(false);
+  };
+
+  if (showSplash) {
+    return <SplashScreen onEnter={handleEnter} />;
+  }
 
   const renderContent = () => {
     switch (activeTab) {
