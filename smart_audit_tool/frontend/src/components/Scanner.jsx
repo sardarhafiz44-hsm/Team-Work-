@@ -1,6 +1,7 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState } from 'react';
+import jsPDF from 'jspdf';
 import useStore from '../store/useStore';
-import { Play, ShieldCheck, FileCode2, Loader2, RotateCcw, Wand2, Crosshair, ChevronDown, Lock, Hash, Activity, Terminal, TrendingDown, AlertTriangle, Rocket, Zap, CheckCircle } from 'lucide-react';
+import { Play, ShieldCheck, FileCode2, Loader2, AlertTriangle, Rocket, Zap, CheckCircle } from 'lucide-react';
 import axios from 'axios';
 
 const BASE = 'http://127.0.0.1:8000';
@@ -20,33 +21,41 @@ const Scanner = () => {
   const [error, setError] = useState(null);
 
   const handleScan = async () => {
-    if (!code.trim()) {
-      setError('Please enter Solidity code first!');
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    setResult(null);
-
+    if (!code.trim()) { setError('Please enter Solidity code first!'); return; }
+    setLoading(true); setError(null); setResult(null);
     try {
       const { data } = await axios.post(`${BASE}/deep-audit`, {
-        project_name: "Audit Project",
-        filename,
-        code,
-        language: "English"
+        project_name: "Audit Project", filename, code, language: "English"
       }, { timeout: 60000 });
-
-      if (data.status === 'Success') {
-        setResult(data);
-        commitScanSuccess(data);
-      } else {
-        setError('Audit failed. Please try again.');
-      }
+      if (data.status === 'Success') { setResult(data); commitScanSuccess(data); }
+      else { setError('Audit failed. Please try again.'); }
     } catch (err) {
       setError('Backend connection failed. Make sure backend is running on port 8000.');
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
+  };
+
+  const handleExportPDF = () => {
+    if (!result) { alert('No audit results to export!'); return; }
+    const doc = new jsPDF();
+    doc.setFontSize(20); doc.setTextColor(0, 212, 255);
+    doc.text('SolShield Pro - Audit Report', 20, 20);
+    doc.setFontSize(12); doc.setTextColor(0, 0, 0);
+    doc.text(`File: ${filename}`, 20, 35);
+    doc.text(`Date: ${new Date().toLocaleString()}`, 20, 45);
+    doc.text(`Security Score: ${score}/100`, 20, 55);
+    doc.text(`Risk Level: ${tier}`, 20, 65);
+    doc.setFontSize(14); doc.text('Vulnerabilities Found:', 20, 80);
+    let yPos = 90;
+    vulns.forEach((v, i) => {
+      if (yPos > 270) { doc.addPage(); yPos = 20; }
+      doc.setFontSize(11); doc.setTextColor(200, 0, 0);
+      doc.text(`${i+1}. [${v.severity || 'Medium'}] ${v.title || 'Unknown'}`, 20, yPos);
+      yPos += 7; doc.setTextColor(0, 0, 0); doc.setFontSize(9);
+      const desc = v.description || '';
+      const splitDesc = doc.splitTextToSize(desc.substring(0, 200), 170);
+      doc.text(splitDesc, 20, yPos); yPos += splitDesc.length * 5 + 5;
+    });
+    doc.save(`SolShield_Audit_${filename.replace('.sol','')}.pdf`);
   };
 
   const score = result?.ai_result?.risk_score?.security_score ?? 100;
@@ -57,7 +66,6 @@ const Scanner = () => {
   return (
     <div className="min-h-full bg-[#050B14] text-white p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">
             <span className="text-white">SOL</span>
@@ -68,62 +76,50 @@ const Scanner = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left: Code Editor */}
           <div className="bg-[#090D16] border border-white/[0.05] rounded-xl overflow-hidden">
             <div className="flex items-center justify-between px-4 h-12 border-b border-white/[0.05] bg-black/20">
               <div className="flex items-center gap-2">
                 <FileCode2 size={16} className="text-[#00D4FF]" />
-                <input
-                  value={filename}
-                  onChange={(e) => setFilename(e.target.value)}
-                  className="bg-transparent text-sm font-mono focus:outline-none text-white"
-                />
+                <input value={filename} onChange={(e) => setFilename(e.target.value)}
+                  className="bg-transparent text-sm font-mono focus:outline-none text-white" />
               </div>
             </div>
-            <textarea
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
+            <textarea value={code} onChange={(e) => setCode(e.target.value)}
               className="w-full h-96 bg-black/40 text-gray-300 font-mono text-sm p-4 focus:outline-none resize-none"
-              placeholder="// Paste your Solidity code here..."
-              spellCheck="false"
-            />
+              placeholder="// Paste your Solidity code here..." spellCheck="false" />
             <div className="p-4 border-t border-white/[0.05]">
-              <button
-                onClick={handleScan}
-                disabled={loading}
-                className="w-full py-3 rounded-lg font-bold text-sm bg-[#00D4FF] text-black hover:brightness-110 disabled:opacity-50 flex items-center justify-center gap-2"
-              >
+              <button onClick={handleScan} disabled={loading}
+                className="w-full py-3 rounded-lg font-bold text-sm bg-[#00D4FF] text-black hover:brightness-110 disabled:opacity-50 flex items-center justify-center gap-2">
                 {loading ? <Loader2 className="animate-spin" size={16} /> : <Play size={16} />}
                 {loading ? 'Auditing...' : 'Execute Deep Audit'}
               </button>
+              {result && (
+                <button onClick={handleExportPDF}
+                  className="w-full mt-2 py-2.5 rounded-lg font-bold text-sm bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 flex items-center justify-center gap-2">
+                  <FileCode2 size={16} /> Export PDF Report
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Right: Results */}
           <div className="space-y-4">
             {error && (
-              <div className="p-4 rounded-lg border border-red-500/30 bg-red-500/10 text-sm text-red-400">
-                {error}
-              </div>
+              <div className="p-4 rounded-lg border border-red-500/30 bg-red-500/10 text-sm text-red-400">{error}</div>
             )}
-
             {!result && !error && (
               <div className="bg-[#090D16] border border-white/[0.05] rounded-xl p-12 text-center">
                 <ShieldCheck className="mx-auto mb-3 text-white/20" size={48} />
                 <p className="text-white/40 text-sm">Paste Solidity code and click "Execute Deep Audit"</p>
               </div>
             )}
-
             {result && (
               <>
-                {/* Score Card */}
                 <div className="bg-[#090D16] border border-white/[0.05] rounded-xl p-6 text-center">
                   <p className="text-xs text-white/40 uppercase tracking-wider mb-2">Security Score</p>
                   <p className="text-6xl font-bold mb-2" style={{ color: colorCode }}>{score}</p>
                   <p className="text-sm font-semibold uppercase tracking-wider" style={{ color: colorCode }}>{tier}</p>
                 </div>
 
-                {/* Vulnerabilities */}
                 <div className="bg-[#090D16] border border-white/[0.05] rounded-xl p-6">
                   <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
                     <AlertTriangle size={16} className="text-red-400" />
@@ -150,7 +146,6 @@ const Scanner = () => {
                   )}
                 </div>
 
-                {/* Deploy Risk Assessment */}
                 <div className="bg-[#090D16] border border-white/[0.05] rounded-xl p-6">
                   <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
                     <AlertTriangle size={16} className="text-red-400" />
@@ -181,7 +176,6 @@ const Scanner = () => {
                   </div>
                 </div>
 
-                {/* Deployment Simulator */}
                 {result.ai_result?.deployment_estimate && (
                   <div className="bg-[#090D16] border border-white/[0.05] rounded-xl p-6">
                     <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
