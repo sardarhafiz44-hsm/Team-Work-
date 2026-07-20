@@ -10,6 +10,8 @@
 # === PYTHON ===
 __pycache__/
 *.py[cod]
+*.pyc
+*.pyo
 *$py.class
 *.so
 *.egg-info/
@@ -29,6 +31,9 @@ frontend/dist/
 frontend/.env
 frontend/.env.local
 package-lock.json
+
+# === ARCHIVES / COMPRESSED ===
+*.zip
 
 # === DATABASE ===
 *.db
