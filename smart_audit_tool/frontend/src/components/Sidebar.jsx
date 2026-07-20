@@ -4,6 +4,7 @@ import {
   FileScan, FileDown, Settings, LogOut, AlertTriangle
 } from 'lucide-react';
 import useStore from '../store/useStore';
+import { exportAuditReport } from '../utils/reportExport';
 
 const NAV_SECTIONS = [
   {
@@ -23,16 +24,35 @@ const NAV_SECTIONS = [
 ];
 
 const Sidebar = () => {
-  const { logout, activeTab, setActiveTab, userRole, auditHistoryList } = useStore();
+  const { logout, activeTab, setActiveTab, userRole, auditHistoryList, latestScanResult } = useStore();
 
-  // Dynamic Metrics Evaluation: Identify if high threat states are tracked in active history logs
+  // Dynamic Metrics: Identify if high threat states are tracked in history
   const containsCriticalThreats = auditHistoryList.some(
     record => record.risk_tier === "Critical Risk" || record.risk_tier === "High Risk"
   );
 
+  // Export Report Handler
+  const handleExportReport = async () => {
+    if (!latestScanResult) {
+      alert('No scan results to export. Run a deep audit first.');
+      return;
+    }
+    try {
+      await exportAuditReport(
+        latestScanResult,
+        '// Audited contract source code', // placeholder — in production, pull from Scanner state
+        'contract.sol',
+        {}
+      );
+    } catch (err) {
+      console.error('Export failed:', err);
+      alert('Export failed. Please try again.');
+    }
+  };
+
   return (
     <aside className="w-64 flex-none bg-[#090D16] border-r border-white/[0.05] h-screen flex flex-col font-sans">
-      {/* Brand Profile Element Header */}
+      {/* Brand Header */}
       <div className="px-5 h-16 flex items-center gap-3 border-b border-white/[0.05]">
         <div className="w-9 h-9 bg-[#00D4FF]/10 border border-[#00D4FF]/30 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(0,212,255,0.15)]">
           <ShieldCheck className="text-[#00D4FF] w-5 h-5" />
@@ -47,7 +67,7 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* Navigation Layer */}
+      {/* Navigation */}
       <nav className="flex-1 px-3 py-5 overflow-y-auto">
         {NAV_SECTIONS.map((section) => (
           <div key={section.label} className="mb-6">
@@ -69,13 +89,13 @@ const Sidebar = () => {
                       : 'text-white/60 hover:text-white hover:bg-white/[0.04]'}`}
                   >
                     <div className="flex items-center gap-3">
-                      {/* Active State Bar Layout Rail */}
+                      {/* Active State Rail */}
                       <span className={`absolute left-0 w-0.5 h-5 rounded-r ${active ? 'bg-[#00D4FF]' : 'bg-transparent'}`} />
                       <Icon size={18} className={active ? 'text-[#00D4FF]' : 'text-white/40 group-hover:text-white/70'} />
                       <span>{name}</span>
                     </div>
 
-                    {/* Dynamic Threat Notification Indicator Badge Component */}
+                    {/* Dynamic Threat Notification Badge */}
                     {trackAlerts && containsCriticalThreats && (
                       <span className="flex h-2 w-2 relative">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -90,13 +110,23 @@ const Sidebar = () => {
         ))}
       </nav>
 
-      {/* Footer System Utilities Layout Utility */}
+      {/* Footer Utilities */}
       <div className="px-3 py-4 border-t border-white/[0.05] space-y-1">
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors">
+        <button
+          onClick={handleExportReport}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors"
+        >
           <FileDown size={18} className="text-white/40" /> Export Report
         </button>
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors">
-          <Settings size={18} className="text-white/40" /> Settings
+        <button
+          onClick={() => setActiveTab('Settings')}
+          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+            activeTab === 'Settings'
+              ? 'bg-[#00D4FF]/10 text-[#00D4FF]'
+              : 'text-white/60 hover:text-white hover:bg-white/[0.04]'
+          }`}
+        >
+          <Settings size={18} className={activeTab === 'Settings' ? 'text-[#00D4FF]' : 'text-white/40'} /> Settings
         </button>
         
         <div className="pt-2 mt-2 border-t border-white/[0.05] flex items-center justify-between px-3">

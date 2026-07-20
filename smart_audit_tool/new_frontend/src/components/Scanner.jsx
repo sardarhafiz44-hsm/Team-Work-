@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Play, ShieldCheck, FileCode2, Loader2, RotateCcw, Wand2, Crosshair, ChevronDown, Lock, Hash, Activity, Terminal, TrendingDown, AlertTriangle, Rocket, Zap, CheckCircle } from 'lucide-react';
 import axios from 'axios';
+import AttackSimulationPanel from './AttackSimulationPanel';
 
 const BASE = 'http://127.0.0.1:8000';
 const SEV_BADGE = {
@@ -146,6 +147,12 @@ const Scanner = () => {
                     </div>
                   )}
                 </div>
+
+                {/* AI Attack Simulation */}
+                <AttackSimulationPanel
+                  aiAttacks={result.ai_result?.ai_attacks_display || []}
+                  aiAttackData={result.ai_result?.ai_attack_simulation || {}}
+                />
 
                 {/* Deploy Risk Assessment */}
                 <div className="bg-[#090D16] border border-white/[0.05] rounded-xl p-6">

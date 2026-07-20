@@ -47,7 +47,7 @@ def get_history() -> list:
     """
     db: Session = SessionLocal()
     try:
-        contracts = db.query(models.SmartContract).order_with(models.SmartContract.scanned_at.desc()).all()
+        contracts = db.query(models.SmartContract).order_by(models.SmartContract.scanned_at.desc()).all()
         history_payload = []
         
         for c in contracts:
