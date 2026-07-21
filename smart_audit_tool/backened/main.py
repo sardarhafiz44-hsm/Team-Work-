@@ -1,3 +1,4 @@
+from model_router import router
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
@@ -77,9 +78,17 @@ async def perform_audit(request: ContractRequest):
         compliance = compliance_checker.check_erc_compliance(request.code)
         compliance_viz = compliance_checker.get_compliance_visualization(compliance)
         
-        # Layer 6: AI-Powered Attack Simulation (REAL AI GENERATION!)
-        ai_attack_data = await ai_attack_simulator.generate_attack_simulation(vulns, request.code, groq_client)
-        ai_attacks_display = ai_attack_simulator.format_attack_for_display(ai_attack_data)
+        # Layer 6: Multi-Model AI Attack Simulation
+        try:
+            ai_attack_result = await router.analyze_contract(request.code, 'attack')
+            if ai_attack_result['success']:
+                ai_attack_data = ai_attack_result['data']
+            else:
+                ai_attack_data = await ai_attack_simulator.generate_attack_simulation(vulns, request.code, groq_client)
+        except:
+            ai_attack_data = await ai_attack_simulator.generate_attack_simulation(vulns, request.code, groq_client)
+        
+        ai_attacks_display = ai_attack_simulator.format_attack_for_display(ai_attack_data) if ai_attack_data else []
         
         # Layer 7: Deployment Simulation
         gas_estimate = deployment_service.estimate_deployment_gas(request.code)
@@ -134,15 +143,29 @@ def get_audit_history():
 
 @app.post("/auto-heal")
 async def auto_heal_contract(request: HealRequest):
-    if not groq_client:
+    try:
+        # Try multi-model router first
+        heal_result = await router.analyze_contract(request.code, 'heal')
+        if heal_result['success']:
+            return {
+                "status": "Success",
+                "provider": heal_result['provider'],
+                "fixed_code": heal_result['data'].get('fixed_code', ''),
+                "remediation_details": heal_result['data'].get('remediation_applied', '')
+            }
+        
+        # Fallback to Groq
+        if groq_client:
+            return await Auto_healer.generate_auto_heal(
+                groq_client, request.issue_title, request.issue_description, request.code
+            )
+        
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="AI Remediation core uninitialized."
+            detail="All AI providers unavailable"
         )
-    try:
-        return await Auto_healer.generate_auto_heal(
-            groq_client, request.issue_title, request.issue_description, request.code
-        )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -151,6 +174,7 @@ async def auto_heal_contract(request: HealRequest):
 
 @app.get("/health")
 def health_check():
+    provider_status = router.get_status()
     return {
         "status": "healthy",
         "agents": {
@@ -158,7 +182,8 @@ def health_check():
             "groq_ai": "active" if groq_client else "inactive",
             "attack_simulator": "active",
             "gas_analyzer": "active",
-            "compliance_checker": "active"
+            "compliance_checker": "active",
+            "ai_providers": provider_status
         },
         "version": "3.0.0"
     }
