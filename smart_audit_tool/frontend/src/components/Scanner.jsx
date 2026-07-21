@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import jsPDF from 'jspdf';
 import Editor from '@monaco-editor/react';
 import useStore from '../store/useStore';
-import { Play, ShieldCheck, FileCode2, Loader2, AlertTriangle, Rocket, Zap, CheckCircle } from 'lucide-react';
+import { Play, ShieldCheck, FileCode2, Loader2, AlertTriangle, Rocket, Zap, CheckCircle, Wand2, Shield } from 'lucide-react';
 import axios from 'axios';
 
 const BASE = 'http://127.0.0.1:8000';
@@ -16,6 +16,7 @@ const SEV_BADGE = {
 const Scanner = () => {
   const [filename, setFilename] = useState('MyContract.sol');
   const [loading, setLoading] = useState(false);
+  const [healing, setHealing] = useState(null);
   const [result, setResult] = useState(null);
   const commitScanSuccess = useStore((s) => s.commitScanSuccess);
   const [error, setError] = useState(null);
@@ -34,6 +35,26 @@ const Scanner = () => {
     } catch (err) {
       setError('Backend connection failed. Make sure backend is running on port 8000.');
     } finally { setLoading(false); }
+  };
+
+  const handleAutoHeal = async (vuln) => {
+    setHealing(vuln.title);
+    try {
+      const { data } = await axios.post(`${BASE}/auto-heal`, {
+        code: editorValue,
+        issue_title: vuln.title,
+        issue_description: vuln.description
+      });
+      if (data.fixed_code) {
+        setEditorValue(data.fixed_code);
+        alert(`Auto-Heal successful! Provider: ${data.provider || 'Groq'}\n${data.remediation_details}`);
+        setTimeout(() => handleScan(), 1000);
+      }
+    } catch (err) {
+      alert('Auto-Heal failed: ' + (err.response?.data?.detail || 'Unknown error'));
+    } finally {
+      setHealing(null);
+    }
   };
 
   const handleExportPDF = () => {
@@ -68,6 +89,7 @@ const Scanner = () => {
   const vulns = result?.ai_result?.vulnerabilities ?? [];
   const colorCode = result?.ai_result?.risk_score?.ui_metadata?.color_code ?? "#00ff88";
   const ai = result?.ai_result;
+  const scoreBreakdown = ai?.risk_score?.score_breakdown;
 
   return (
     <div className="min-h-full bg-[#050B14] text-white p-6">
@@ -141,6 +163,35 @@ const Scanner = () => {
                   <p className="text-sm font-semibold uppercase tracking-wider" style={{ color: colorCode }}>{tier}</p>
                 </div>
 
+                {/* Mathematical Proof & Score Breakdown */}
+                {scoreBreakdown && (
+                  <div className="bg-[#090D16] border border-emerald-500/20 rounded-xl p-6">
+                    <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
+                      <Shield size={16} className="text-emerald-400" />
+                      Mathematical Proof & Score Breakdown
+                    </h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/30">
+                        <span className="text-sm text-emerald-400">Base Score</span>
+                        <span className="text-sm font-bold text-emerald-400">{scoreBreakdown.base_score}</span>
+                      </div>
+                      {scoreBreakdown.deductions?.map((d, i) => (
+                        <div key={i} className="flex justify-between p-3 bg-red-500/5 rounded-lg border border-red-500/20">
+                          <div>
+                            <p className="text-xs text-white/80">{d.item}</p>
+                            <p className="text-[10px] text-red-400">{d.severity}</p>
+                          </div>
+                          <span className="text-sm font-bold text-red-400">{d.points}</span>
+                        </div>
+                      ))}
+                      <div className="flex justify-between p-3 bg-[#00D4FF]/10 rounded-lg border border-[#00D4FF]/30">
+                        <span className="text-sm text-[#00D4FF]">Final Score</span>
+                        <span className="text-lg font-bold text-[#00D4FF]">{scoreBreakdown.final_score}/100</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="bg-[#090D16] border border-white/[0.05] rounded-xl p-6">
                   <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
                     <AlertTriangle size={16} className="text-red-400" />
@@ -161,6 +212,17 @@ const Scanner = () => {
                           </div>
                           <p className="text-sm font-semibold text-white">{v.title}</p>
                           <p className="text-xs text-white/60 mt-1">{v.description}</p>
+                          <button
+                            onClick={() => handleAutoHeal(v)}
+                            disabled={healing === v.title}
+                            className="mt-2 text-xs bg-[#00D4FF]/20 text-[#00D4FF] px-3 py-1.5 rounded hover:bg-[#00D4FF]/30 transition-colors flex items-center gap-1.5 disabled:opacity-40"
+                          >
+                            {healing === v.title ? (
+                              <><Loader2 className="animate-spin" size={12} /> Healing...</>
+                            ) : (
+                              <><Wand2 size={12} /> Auto-Heal</>
+                            )}
+                          </button>
                         </div>
                       ))}
                     </div>
